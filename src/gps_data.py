@@ -39,6 +39,12 @@ class GPSData:
     def __len__(self) -> int:
         return len(self.times)
     
+    def time_deltas(self) -> list[float]:
+        result = [0.0]
+        for i in range(1, len(self)):
+            result.append((self.times[i] - self.times[i - 1]).total_seconds())
+        return result 
+    
     def distances(self) -> list[float]:
         result = [0.0]
         for i in range(1, len(self)):
@@ -54,3 +60,35 @@ class GPSData:
     
     def total_distance(self) -> float:
         return sum(self.distances())
+
+    def speeds(self) -> list[float]:
+        distances = self.distances()
+        deltas = self.time_deltas()
+        result = [0.0]
+        for i in range(1, len(self)):
+            if deltas[i] <= 0:
+                result.append(distances[i]/ deltas[i])
+        return result
+    
+    def accelerations(slef) -> list[float]:
+        speeds = self.speeds()
+        deltas = self.time_deltas()
+        result = [0.0]
+        for i in range(1, len(self)):
+            if deltas[i] <= 0:
+                result.append(0.0)
+            else:
+                result.append((speeds[i] - speeds[i - 1]) / deltas[i])
+        return result
+    
+    def slopes(self) -> list[float]:
+        distances = self.distances()
+        result = [0.0]
+        for i in range(1, len(self)):
+            if distances[i] <= 0:
+                result.append(0.0)
+            else:
+                result.append(
+                    (self.elevations[i] - self.elevations[i - 1]) / distances[i]
+                )
+        return result
